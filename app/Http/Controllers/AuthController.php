@@ -27,7 +27,7 @@ class AuthController extends Controller
         $password = $request->get('password');
         
         $isEmployeeExist = Employees::where('employeecode', $employeecode)->where('quit', 0)->distinct()->count();
-        
+
         
         if($isEmployeeExist == 0){
             return response()->json([

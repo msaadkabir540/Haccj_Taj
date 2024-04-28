@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 // use DB;
 use App\Http\Controllers\RuntimeException;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class EmployeeProfileController extends Controller
 {
@@ -37,22 +38,31 @@ class EmployeeProfileController extends Controller
     }
 
     public function createEmployee(Request $request){
+        
+        // $data = json_decode($request->getContent());
+        
+        $employee = Employees::where('employeecode', $request->employeecode)->get();
+        if (count($employee) > 0) {
+            return response()->json(['status' => true, 'message' => 'employee already added', 'data' => null]);
+        }
 
         try
         {
             DB::beginTransaction();
+            $addEmployee = new Employees();
+            $addEmployee->employeecode  = $request->employeecode;
+            $addEmployee->name  = $request->name;
+            $addEmployee->email  = $request->email;
+            $addEmployee->dob  = $request->dob;
+            $addEmployee->contact_no = $request->contact_no;
+            $addEmployee->address = $request->address;
+            $addEmployee->department = $request->department;
+            $addEmployee->isadmin = $request->isadmin;
+            $addEmployee->created_at = Carbon::now()->toDateTimeString();;
+            // $addEmployee->updated_at = Carbon::now()->toDateTimeString();;
+            $addEmployee->save();
             
-                $addEmployee = new Employees();
-                $addEmployee->employeecode  = $request->employeecode;
-                $addEmployee->name  = $request->name;
-                $addEmployee->email  = $request->email;
-                $addEmployee->dob  = $request->dob;
-                $addEmployee->contact_no = $request->contact_no;
-                $addEmployee->address = $request->address;
-                $addEmployee->department = $request->department;
-                $addEmployee->isadmin = $request->isadmin;
-                $addEmployee->save();
-                
+
             if(!$addEmployee) {
                 DB::rollback();
             }

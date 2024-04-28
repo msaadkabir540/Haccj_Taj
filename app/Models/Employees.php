@@ -10,5 +10,7 @@ class Employees extends Model
 
     protected $primaryKey = 'id';
 
+    protected $guarded = [];
+
 
 }

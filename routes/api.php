@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\SubscriberController;
 
 
 /*
@@ -32,3 +33,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('validate-employee/{employeecode}', [EmployeeProfileController::class, 'validateEmployee']);
 // Create Employee
 Route::post('/add-employee', [EmployeeProfileController::class, 'createEmployee']);
+
+
+Route::post('/forgot-password', [SubscriberController::class, 'forgotPassword']);
+Route::post('/reset-password', [SubscriberController::class, 'resetPassword']);
