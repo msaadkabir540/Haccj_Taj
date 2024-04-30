@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\SubscriberController;
+use App\Http\Controllers\TemperatureCatergoryController;
 
 
 /*
@@ -34,6 +35,13 @@ Route::get('validate-employee/{employeecode}', [EmployeeProfileController::class
 // Create Employee
 Route::post('/add-employee', [EmployeeProfileController::class, 'createEmployee']);
 
-
+// forgot and reset password
 Route::post('/forgot-password', [SubscriberController::class, 'forgotPassword']);
 Route::post('/reset-password', [SubscriberController::class, 'resetPassword']);
+
+// Temperature APIs
+Route::post('/add-temperature', [TemperatureCatergoryController::class, 'addTemperatureData']);
+Route::get('/get-temperature-data', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
+Route::post('/add-equipment', [TemperatureCatergoryController::class, 'addEquipmentData']);
+Route::get('/get-equipment-data', [TemperatureCatergoryController::class, 'getAllEquipmentData']);
+

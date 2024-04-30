@@ -58,8 +58,8 @@ class EmployeeProfileController extends Controller
             $addEmployee->address = $request->address;
             $addEmployee->department = $request->department;
             $addEmployee->isadmin = $request->isadmin;
-            $addEmployee->created_at = Carbon::now()->toDateTimeString();;
-            // $addEmployee->updated_at = Carbon::now()->toDateTimeString();;
+            $addEmployee->created_at = Carbon::now()->toDateTimeString();
+            // $addEmployee->updated_at = Carbon::now()->toDateTimeString();
             $addEmployee->save();
             
 
