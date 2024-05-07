@@ -43,9 +43,9 @@ class TemperatureCatergoryController extends Controller
     
     }
 
-    public function getAllTemperatureData(Request $request){
+    public function getAllTemperatureData(Request $request, $employeecode){
 
-        $temperatureData = TemperatureCategory::whereDate('created_at', Carbon::today())->get();
+        $temperatureData = TemperatureCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
 
 
         $equipmentsData = Equipments::get();

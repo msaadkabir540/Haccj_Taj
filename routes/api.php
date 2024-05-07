@@ -6,7 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\TemperatureCatergoryController;
-
+use App\Http\Controllers\TrasabilityCatergoryController;
+use App\Http\Controllers\ChecklistCatergoryController;
+use App\Models\Equipments;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +34,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Validate Employee Code    
 Route::get('validate-employee/{employeecode}', [EmployeeProfileController::class, 'validateEmployee']);
+Route::get('get-all-employee', [EmployeeProfileController::class, 'getAllEmployeeData']);
 // Create Employee
 Route::post('/add-employee', [EmployeeProfileController::class, 'createEmployee']);
 
@@ -39,9 +42,20 @@ Route::post('/add-employee', [EmployeeProfileController::class, 'createEmployee'
 Route::post('/forgot-password', [SubscriberController::class, 'forgotPassword']);
 Route::post('/reset-password', [SubscriberController::class, 'resetPassword']);
 
-// Temperature APIs
-Route::post('/add-temperature', [TemperatureCatergoryController::class, 'addTemperatureData']);
-Route::get('/get-temperature-data', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
+// Equipments
 Route::post('/add-equipment', [TemperatureCatergoryController::class, 'addEquipmentData']);
 Route::get('/get-equipment-data', [TemperatureCatergoryController::class, 'getAllEquipmentData']);
 
+// Temperature APIs
+Route::post('/add-temperature', [TemperatureCatergoryController::class, 'addTemperatureData']);
+Route::get('/get-temperature-data/{employeecode}', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
+
+// Trasabilty
+Route::post('/add-trasability', [TrasabilityCatergoryController::class, 'addTrasabilityData']);
+Route::get('/get-trasability-data/{employeecode}', [TrasabilityCatergoryController::class, 'getAllTrasabilityData']);
+Route::post('/add-trasability-productType', [TrasabilityCatergoryController::class, 'addTrasabilityProdType']);
+Route::get('/get-trasability-productType', [TrasabilityCatergoryController::class, 'getAllTrasabilityProd']);
+
+// Checklist
+Route::post('/add-checklist', [ChecklistCatergoryController::class, 'addChecklistData']);
+Route::get('get-checklist-data/{employeecode}', [ChecklistCatergoryController::class, 'getAllChecklistData']);

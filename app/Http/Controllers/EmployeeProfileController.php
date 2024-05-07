@@ -85,4 +85,19 @@ class EmployeeProfileController extends Controller
 
 
     }
+
+
+    public function getAllEmployeeData(Request $request){
+
+        $employeeData = Employees::get();
+        if (count($employeeData)) {
+            return response()->json(['status' => true, 'message' => 'All Employee Data', 'data' => $employeeData ]);
+        }
+        else {
+            return response()->json(['status' => true, 'message' => 'No Employee Found', 'data' => "N/A" ]);
+        }
+
+    }
+
+
 }
