@@ -8,6 +8,9 @@ use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\TemperatureCatergoryController;
 use App\Http\Controllers\TrasabilityCatergoryController;
 use App\Http\Controllers\ChecklistCatergoryController;
+use App\Http\Controllers\OilTemperatureCatergoryController;
+use App\Http\Controllers\CleaningCatergoryController;
+use App\Models\CleaningCategory;
 use App\Models\Equipments;
 
 /*
@@ -59,3 +62,13 @@ Route::get('/get-trasability-productType', [TrasabilityCatergoryController::clas
 // Checklist
 Route::post('/add-checklist', [ChecklistCatergoryController::class, 'addChecklistData']);
 Route::get('get-checklist-data/{employeecode}', [ChecklistCatergoryController::class, 'getAllChecklistData']);
+
+// Oil Temperature
+Route::post('/add-oil-temperature', [OilTemperatureCatergoryController::class, 'addOilTemperatureData']);
+Route::get('/get-oil-temperature-data/{employeecode}', [OilTemperatureCatergoryController::class, 'getAllOilTemperatureData']);
+Route::post('/add-oil-temperature-machines', [OilTemperatureCatergoryController::class, 'addOilTempMachines']);
+
+// Cleaning
+Route::post('/add-cleaning', [CleaningCatergoryController::class, 'addCleaningData']);
+Route::get('/get-cleaning-data/{employeecode}', [CleaningCatergoryController::class, 'getAllCleaningData']);
+
