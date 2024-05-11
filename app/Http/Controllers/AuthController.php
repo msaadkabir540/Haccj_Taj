@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Employees;
 // use Auth;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+
 
 use Laravel\Sanctum\HasApiTokens;
 use DB;
@@ -94,69 +96,30 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'login_successfully',
             'access_token' => $token,
+            'expires_in' => Config::get('sanctum.expiration') * 900,
             'token_type' => 'bearer',
             'employee' => $employeeData,
         ]);
     }
     
 
-    // public function login(Request $request)
+
+    // public function logout()
     // {
-    //     // dd($request);
-    //     $credentials = $request->validate([
-    //         'employeecode' => 'required|employeecode',
-    //         'password' => 'required|string',
-    //     ]);
-    //     if (Auth::attempt($credentials)) {
-    //         $user = Auth::user();
-    //         $token = $user->createToken('auth_token')->plainTextToken;
-    //         $employeeData = Employees::where('employeecode', $user->employeecode)->first();
-
-    //         return $this->respondWithToken($token,$employeeData);
-
-    //         // return response()->json([
-    //         //     'status' => true,
-    //         //     'data' => $employeeData,
-    //         //     'token' => $token,
-    //         //     'message' => 'Login Successfully'
-    //         // ]);
-    //     }
-
-    //     return response()->json([
-    //         'status' => false,
-    //         'token' => null,
-    //         'message' => 'Unauthorized'
-    //     ], 401);
-        
-    //     // return response()->json(['message' => 'Unauthorized'], 401);
-    // }
-
-    // public function logout(Request $request)
-    // {
-    //     // dd($request);
-    //     $request->user()->currentAccessToken()->delete();
-
+    //     auth()->guard('web')->logout();
 
     //     return response()->json(['message' => 'Successfully logged out']);
     // }
 
 
-    // protected function respondWithToken($token,$employeeData){
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'access_token' => $token,
-    //         'token_type' => 'bearer',
-    //         // 'expires_in' => $this->guard('api')->factory()->getTTL() * 36000,
-    //         'employee' => $employeeData
-    //     ]);
-    // }
 
 
-    // public function logout(Request $request)
-    // {
-    //     $request->user()->tokens()->delete();
 
-    //     return response()->json(['message' => 'Logged out']);
-    // }
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json(['status' => true ,'message' => 'Logout Successfully']);
+        
+    }
 }

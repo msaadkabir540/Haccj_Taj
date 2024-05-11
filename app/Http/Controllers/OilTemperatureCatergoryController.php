@@ -46,6 +46,58 @@ class OilTemperatureCatergoryController extends Controller
     
     }
 
+
+    public function updateOilTemperatureData(Request $request){
+        $id = $request->id;
+        try {
+            DB::beginTransaction();
+
+            $oilTemperature = OilTemperatureCategory::find($id);
+
+            if (!$oilTemperature) {
+                return response()->json(['status' => false, 'message' => 'Oil Temperature data not found']);
+            }
+
+            $oilTemperature->updated_by = $request->employeecode;
+            $oilTemperature->machine_name = $request->machine_name;
+            $oilTemperature->machine_type = $request->machine_type;
+            $oilTemperature->oil_temperature = $request->oil_temperature;            
+            $oilTemperature->updated_at = Carbon::now()->toDateTimeString();
+            $oilTemperature->save();
+    
+            DB::commit();
+    
+            return response()->json(['status' => true, 'message' => 'Oil Temperature Updated']);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
+    public function deleteOilTemperature($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $OilTemperature = OilTemperatureCategory::find($id);
+
+            if (!$OilTemperature) {
+                return response()->json(['status' => false, 'message' => 'OilTemperature data not found']);
+            }
+
+            $OilTemperature->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'OilTemperature data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+
     public function getAllOilTemperatureData(Request $request, $employeecode){
 
         $oilTemperatureData = OilTemperatureCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
@@ -60,8 +112,6 @@ class OilTemperatureCatergoryController extends Controller
         // }
 
     }
-
-
 
 
     public function addOilTempMachines(Request $request){

@@ -86,6 +86,59 @@ class EmployeeProfileController extends Controller
 
     }
 
+    public function updateEmployeeData(Request $request){
+        $id = $request->id;
+        try {
+            DB::beginTransaction();
+
+            $employeeData = Employees::find($id);
+
+            if (!$employeeData) {
+                return response()->json(['status' => false, 'message' => 'Employee data not found']);
+            }
+
+            $employeeData->updated_by  = $request->employeecode;
+            $employeeData->name  = $request->name;
+            $employeeData->email  = $request->email;
+            $employeeData->dob  = $request->dob;
+            $employeeData->contact_no = $request->contact_no;
+            $employeeData->address = $request->address;
+            $employeeData->department = $request->department;
+            $employeeData->isadmin = $request->isadmin;
+            $employeeData->updated_at = Carbon::now()->toDateTimeString();
+            $employeeData->save();
+    
+            DB::commit();
+    
+            return response()->json(['status' => true, 'message' => 'Employee Updated']);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
+    public function deleteEmployee($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $employeeData = Employees::find($id);
+
+            if (!$employeeData) {
+                return response()->json(['status' => false, 'message' => 'employeeData data not found']);
+            }
+
+            $employeeData->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'employeeData data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
 
     public function getAllEmployeeData(Request $request){
 

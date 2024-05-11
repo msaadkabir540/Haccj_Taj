@@ -26,6 +26,8 @@ class TrasabilityCatergoryController extends Controller
             $addTrasability->image_name = $request->file('image') ? $request->file('image')->getClientOriginalName() : "";
             $addTrasability->image = $request->file('image') ? $request->file('image')->move('uploads/', $addTrasability->image_name) : "";
             $addTrasability->created_at = Carbon::now()->toDateTimeString();
+            $addTrasability->expire_at = Carbon::parse($addTrasability->created_at)->addDays(4)->toDateTimeString();
+            // $addTrasability->expire_at = $request->expire_at;
             // $addTrasability->updated_at = Carbon::now()->toDateTimeString();
             $addTrasability->save();
 
@@ -47,7 +49,12 @@ class TrasabilityCatergoryController extends Controller
 
     public function getAllTrasabilityData(Request $request, $employeecode){
 
-        $trasabilityData = TrasabilityCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
+        $fourDaysAgo = Carbon::today()->subDays(4);
+
+        // $trasabilityData = TrasabilityCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
+        $trasabilityData = TrasabilityCategory::where('created_at', '>=', $fourDaysAgo)
+        ->where('created_by', $employeecode)
+        ->get();
 
         $trasabilityProdData = TrasabilityProdType::get();
 
@@ -58,6 +65,71 @@ class TrasabilityCatergoryController extends Controller
         //     return response()->json(['status' => true, 'message' => 'No Trasability Found', 'data' => "N/A" ]);
         // }
 
+    }
+
+
+    public function getTrasabilityById(Request $request, $id){
+        $reports = TrasabilityCategory::where('id', $id)->orderBy('created_at', 'desc')->first(); 
+
+        if ($reports) {
+            return response()->json(['status' => true, 'message' => 'data found', 'data'=> $reports]);
+        }else {
+            return response()->json(['status' => false, 'message' => 'no data found', 'data'=> 'N/A']);
+        }
+
+    }
+
+
+    public function updateTrasabilityData(Request $request)
+    {
+        $id = $request->id;
+        try {
+            DB::beginTransaction();
+
+            $updateTrasability = TrasabilityCategory::find($id);
+
+            if (!$updateTrasability) {
+                return response()->json(['status' => false, 'message' => 'Trasability data not found']);
+            }
+
+            // Update the attributes based on the request data
+            $updateTrasability->updated_by = $request->employeecode;
+            $updateTrasability->trasability_name = $request->trasability_name;
+            $updateTrasability->trasability_type = $request->trasability_type;
+            $updateTrasability->expire_at = $request->expire_at;
+            $updateTrasability->updated_at = Carbon::now()->toDateTimeString();
+            $updateTrasability->save();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'Trasability data updated']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+    public function deleteTrasability($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $trasability = TrasabilityCategory::find($id);
+
+            if (!$trasability) {
+                return response()->json(['status' => false, 'message' => 'Trasability data not found']);
+            }
+
+            $trasability->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'Trasability data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
 

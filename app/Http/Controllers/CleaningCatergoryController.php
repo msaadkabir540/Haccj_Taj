@@ -43,9 +43,62 @@ class CleaningCatergoryController extends Controller
     
     }
 
-    public function getAllCleaningData(Request $request, $employeecode){
 
-        $cleaningData = CleaningCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
+    public function updateCleaningData(Request $request){
+        try {
+            $id = $request->id;
+            DB::beginTransaction();
+
+            $cleaning = CleaningCategory::find($id);
+
+            if (!$cleaning) {
+                return response()->json(['status' => false, 'message' => 'cleaning data not found']);
+            }
+            
+            $cleaning->updated_by = $request->employeecode;
+            $cleaning->cleaning_area = $request->cleaning_area;
+            $cleaning->updated_at = Carbon::now()->toDateTimeString();
+            $cleaning->save();
+    
+            DB::commit();
+    
+            return response()->json(['status' => true, 'message' => 'cleaning Updated']);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteCleaning($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $cleaning = CleaningCategory::find($id);
+
+            if (!$cleaning) {
+                return response()->json(['status' => false, 'message' => 'cleaning data not found']);
+            }
+
+            $cleaning->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'cleaning data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+
+    public function getAllCleaningData(Request $request, $employeecode, $area){
+
+        $cleaningData = CleaningCategory::whereDate('created_at', Carbon::today())
+        ->where('created_by', $employeecode)
+        ->where('cleaning_area', $area)
+        ->get();
 
 
         if (count($cleaningData)) {

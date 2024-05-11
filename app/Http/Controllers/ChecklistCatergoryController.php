@@ -43,6 +43,58 @@ class ChecklistCatergoryController extends Controller
     
     }
 
+
+    public function updateChecklistData(Request $request){
+        try {
+            $id = $request->id;
+            DB::beginTransaction();
+
+            $checklist = ChecklistCategory::find($id);
+
+            if (!$checklist) {
+                return response()->json(['status' => false, 'message' => 'Checklist data not found']);
+            }
+            
+            $checklist->updated_by = $request->employeecode;
+            $checklist->task = $request->task;
+            $checklist->message = $request->message;
+            $checklist->assign_to = $request->assign_to;
+            $checklist->updated_at = Carbon::now()->toDateTimeString();
+            $checklist->save();
+    
+            DB::commit();
+    
+            return response()->json(['status' => true, 'message' => 'Checklist Updated']);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteChecklist($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $checklist = ChecklistCategory::find($id);
+
+            if (!$checklist) {
+                return response()->json(['status' => false, 'message' => 'checklist data not found']);
+            }
+
+            $checklist->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'checklist data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+
     public function getAllChecklistData($employeecode){
 
         $checklistData = ChecklistCategory::whereDate('created_at', Carbon::today())->where('assign_to', $employeecode)->get();
