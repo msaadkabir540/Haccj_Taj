@@ -98,9 +98,48 @@ class OilTemperatureCatergoryController extends Controller
 
 
 
-    public function getAllOilTemperatureData(Request $request, $employeecode){
+    public function getAllOilTemperatureData(Request $request){
 
-        $oilTemperatureData = OilTemperatureCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
+        $employee = Employees::where('employeecode', $request->employeecode)->first();
+    
+        // Check if the employee record exists and if the employee is an admin
+        // dd($employee->isadmin == 1);
+        if ($employee && $employee->isadmin == 1) {
+            // If the employee is an admin, fetch all temperature data
+            $oilTemperatureData = OilTemperatureCategory::select('id', 'machine_name', 'machine_type', 'oil_temperature', 'image', 'image_name', 'created_at', 'created_by');
+        } else {
+            // If the employee is not an admin, fetch only the employee's temperature data
+            $oilTemperatureData = OilTemperatureCategory::where('created_by', $request->employeecode)
+                ->select('id', 'machine_name', 'machine_type', 'oil_temperature', 'image', 'image_name', 'created_at', 'created_by');
+        }
+    
+        // Apply date filters if provided
+        if($request->date){
+            $date = date('Y-m-d', strtotime($request->date));
+            if($request->edate) {
+                $edate = date('Y-m-d', strtotime($request->edate));
+                $oilTemperatureData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
+            } else {
+                $oilTemperatureData->whereRaw("DATE(created_at) = '$date'");
+            }
+        } else {
+            if(!$request->date && !$request->employee ) {
+                $oilTemperatureData->whereRaw("DATE(created_at) = curdate()");
+            }
+        }
+    
+        // Apply employeecode filter if provided
+        if($request->employee){
+            $oilTemperatureData->where('created_by', trim($request->employee));
+        }
+    
+
+        $oilTemperatureData = $oilTemperatureData->orderBy('created_at', 'DESC')->get();
+    
+
+
+
+        // $oilTemperatureData = OilTemperatureCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
 
         $oilMachineData = OilMachines::get();
 
@@ -144,20 +183,27 @@ class OilTemperatureCatergoryController extends Controller
 
     }
 
+    public function deleteOilTemperatureMachine($id)
+    {
+        try {
+            DB::beginTransaction();
 
-    // public function getAllTrasabilityProd(Request $request){
+            $oilMachine = OilMachines::find($id);
 
-    //     $trasabilityProdData = TrasabilityProdType::get();
-    //     if (count($trasabilityProdData)) {
-    //         return response()->json(['status' => true, 'message' => 'All Trasability Product Type Data', 'data' => $trasabilityProdData ]);
-    //     }
-    //     else {
-    //         return response()->json(['status' => true, 'message' => 'No Trasability Product Type Found', 'data' => "N/A" ]);
-    //     }
+            if (!$oilMachine) {
+                return response()->json(['status' => false, 'message' => 'Oil Machine not found']);
+            }
 
-    // }
+            $oilMachine->delete();
 
+            DB::commit();
 
+            return response()->json(['status' => true, 'message' => 'Oil Machine deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
 
 }

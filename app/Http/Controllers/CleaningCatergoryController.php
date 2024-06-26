@@ -93,12 +93,54 @@ class CleaningCatergoryController extends Controller
 
 
 
-    public function getAllCleaningData(Request $request, $employeecode, $area){
+    public function getAllCleaningData(Request $request){
 
-        $cleaningData = CleaningCategory::whereDate('created_at', Carbon::today())
-        ->where('created_by', $employeecode)
-        ->where('cleaning_area', $area)
-        ->get();
+
+        $employee = Employees::where('employeecode', $request->employeecode)->first();
+    
+        // Check if the employee record exists and if the employee is an admin
+        // dd($employee->isadmin == 1);
+        if ($employee && $employee->isadmin == 1) {
+            // If the employee is an admin, fetch all temperature data
+            // $cleaningData = CleaningCategory::select('id', 'cleaning_area', 'image', 'image_name', 'created_at', 'created_by');
+            $cleaningData = CleaningCategory::select('id', 'cleaning_area', 'image', 'image_name', DB::raw('DATE_ADD(created_at, INTERVAL 2 HOUR) as created_at'), 'created_by');
+        } else {
+            // If the employee is not an admin, fetch only the employee's temperature data
+            // $cleaningData = CleaningCategory::where('created_by', $request->employeecode)
+            //     ->select('id', 'cleaning_area', 'image', 'image_name', 'created_at', 'created_by');
+            $cleaningData = CleaningCategory::where('created_by', $request->employeecode)
+                ->select('id', 'cleaning_area', 'image', 'image_name', DB::raw('DATE_ADD(created_at, INTERVAL 2 HOUR) as created_at'), 'created_by');
+        }
+    
+        // Apply date filters if provided
+        if($request->date){
+            $date = date('Y-m-d', strtotime($request->date));
+            if($request->edate) {
+                $edate = date('Y-m-d', strtotime($request->edate));
+                $cleaningData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
+            } else {
+                $cleaningData->whereRaw("DATE(created_at) = '$date'");
+            }
+        } else {
+            if(!$request->date && !$request->employee ) {
+                $cleaningData->whereRaw("DATE(created_at) = curdate()");
+            }
+        }
+    
+        // Apply employeecode filter if provided
+        if($request->employee){
+            $cleaningData->where('created_by', trim($request->employee));
+        }
+    
+
+        $cleaningData = $cleaningData->where('cleaning_area', $request->cleaning_area)->orderBy('created_at', 'DESC')->get();
+    
+
+
+        // $cleaningData = CleaningCategory::whereDate('created_at', Carbon::today())
+        // ->where('created_by', $employeecode)
+        // ->where('cleaning_area', $area)
+        // ->get();
 
 
         if (count($cleaningData)) {

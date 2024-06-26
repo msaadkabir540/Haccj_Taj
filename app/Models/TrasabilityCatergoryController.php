@@ -48,6 +48,85 @@ class TrasabilityCatergoryController extends Controller
     
     }
 
+    // public function getAllTrasabilityData(Request $request){
+    //     // dd($request);
+        
+    //         // Get the JSON data from the request body
+    //         // $jsonData = $request->getContent();
+        
+    //         // // Decode the JSON data into an associative array
+    //         // $data = json_decode($jsonData, true);
+
+    //         $data = $request->input();
+
+        
+        
+        
+
+    //     $employee = Employees::where('employeecode', isset($data['employeecode']))->first();
+    
+    //     // Check if the employee record exists and if the employee is an admin
+    //     if ($employee && $employee->isadmin == 1) {
+    //         // If the employee is an admin, fetch all temperature data
+    //         $trasabilityData = TrasabilityCategory::select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
+    //     } else {
+    //         // If the employee is not an admin, fetch only the employee's temperature data
+    //         $trasabilityData = TrasabilityCategory::where('created_by', isset($data['employeecode']))
+    //             ->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
+    //     }
+    
+    //     // Apply date filters if provided
+    //     if(isset($data['date'])){
+    //         $date = date('Y-m-d', strtotime(isset($data['date'])));
+    //         if(isset($data['edate'])) {
+    //             $edate = date('Y-m-d', strtotime(isset($data['edate'])));
+    //             $trasabilityData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
+    //         } else {
+    //             $trasabilityData->whereRaw("DATE(created_at) = '$date'");
+    //         }
+    //     } else {
+    //         if(!isset($data['date']) && !isset($data['employee'])) {
+    //             $trasabilityData->whereRaw("DATE(created_at) = curdate()");
+    //             // $trasabilityData->whereRaw("DATE(created_at) BETWEEN CURDATE() - INTERVAL 4 DAY AND CURDATE()");
+
+    //         }
+    //     }
+
+    
+    //     // Apply employeecode filter if provided
+    //     if(isset($data['employee'])){
+    //         $trasabilityData->where('created_by', $data['employee']);
+    //     }
+    
+
+    //     $trasabilityData = $trasabilityData->orderBy('created_at', 'DESC')->get();
+    
+
+
+
+
+
+
+
+
+
+    //     $fourDaysAgo = Carbon::today()->subDays(4);
+
+    //     // $trasabilityData = TrasabilityCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
+    //     // $trasabilityData = TrasabilityCategory::where('created_at', '>=', $fourDaysAgo)
+    //     // ->where('created_by', $employeecode)
+    //     // ->get();
+
+    //     $trasabilityProdData = TrasabilityProdType::get();
+
+    //     // if (count($trasabilityData)) {
+    //         return response()->json(['status' => true, 'message' => 'All Trasability Data', 'trasabilityData' => $trasabilityData, 'trasabilityProdData' => $trasabilityProdData ]);
+    //     // }
+    //     // else {
+    //     //     return response()->json(['status' => true, 'message' => 'No Trasability Found', 'data' => "N/A" ]);
+    //     // }
+
+    // }
 
 
     public function getAllTrasabilityData(Request $request) {
@@ -226,35 +305,6 @@ class TrasabilityCatergoryController extends Controller
     }
 
 
-    public function addTrasabilityProdName(Request $request){
-        
-        try
-        {
-            DB::beginTransaction();
-            $addProdName = new TrasabilityProdName();
-            $addProdName->product_name  = $request->product_name;
-            $addProdName->employeecode  = $request->employeecode;
-            $addProdName->created_at = Carbon::now()->toDateTimeString();
-            $addProdName->save();
-            
-
-            if(!$addProdName) {
-                DB::rollback();
-            }
-
-            DB::commit();
-
-            return response()->json(['status' => true, 'message' => 'Trasability Product Name Added']);
-        }
-        catch(\Exception $e)
-        {
-            DB::rollback();
-            return response()->json(['status' => false, 'message' => $e]);
-        }
-    
-
-    }
-
     public function getAllTrasabilityProdName(Request $request){
 
         $trasabilityProdData = TrasabilityProdName::get();
@@ -265,28 +315,6 @@ class TrasabilityCatergoryController extends Controller
             return response()->json(['status' => true, 'message' => 'No Trasability Product Name Found', 'data' => "N/A" ]);
         }
 
-    }
-
-    public function deleteTrasabilityProdName($id)
-    {
-        try {
-            DB::beginTransaction();
-
-            $trasabilityProd = TrasabilityProdName::find($id);
-
-            if (!$trasabilityProd) {
-                return response()->json(['status' => false, 'message' => 'Trasability Product Name data not found']);
-            }
-
-            $trasabilityProd->delete();
-
-            DB::commit();
-
-            return response()->json(['status' => true, 'message' => 'Trasability Product Name data deleted']);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
-        }
     }
 
     public function deleteTrasabilityProd($id)

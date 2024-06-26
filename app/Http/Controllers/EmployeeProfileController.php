@@ -142,7 +142,20 @@ class EmployeeProfileController extends Controller
 
     public function getAllEmployeeData(Request $request){
 
-        $employeeData = Employees::get();
+        $employeeData = Employees::select('id', 'employeecode', 'name', 'email','dob','contact_no', 
+        'address','department','isadmin','quit', 'created_at');
+
+        // Apply employeecode filter if provided
+        if($request->employee){
+            $employeeData->where('employeecode', trim($request->employee));
+        }
+    
+
+        $employeeData = $employeeData->orderBy('created_at', 'DESC')->get();
+    
+
+
+        // $employeeData = Employees::get();
         if (count($employeeData)) {
             return response()->json(['status' => true, 'message' => 'All Employee Data', 'data' => $employeeData ]);
         }
@@ -152,5 +165,22 @@ class EmployeeProfileController extends Controller
 
     }
 
+
+    public function getAllEmployeeDataGet(Request $request){
+    
+
+        $employeeData = Employees::get();
+    
+
+
+        // $employeeData = Employees::get();
+        if (count($employeeData)) {
+            return response()->json(['status' => true, 'message' => 'All Employee Data', 'data' => $employeeData ]);
+        }
+        else {
+            return response()->json(['status' => true, 'message' => 'No Employee Found', 'data' => "N/A" ]);
+        }
+
+    }
 
 }

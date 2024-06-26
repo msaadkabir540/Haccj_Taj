@@ -89,17 +89,21 @@ class TemperatureCatergoryController extends Controller
 
     public function getAllTemperatureData(Request $request){
 
+        // dd($request->employeecode);
         $employee = Employees::where('employeecode', $request->employeecode)->first();
     
         // Check if the employee record exists and if the employee is an admin
-        // dd($employee->isadmin == 1);
+        // dd($employee);        
         if ($employee && $employee->isadmin == 1) {
             // If the employee is an admin, fetch all temperature data
-            $temperatureData = TemperatureCategory::select('id', 'equipment_name', 'temperature_value', 'created_at', 'created_by');
+            // $temperatureData = TemperatureCategory::select('id', 'equipment_name', 'temperature_value', 'created_at', 'created_by');
+            $temperatureData = TemperatureCategory::select('id', 'equipment_name', 'temperature_value', DB::raw('DATE_ADD(created_at, INTERVAL 2 HOUR) as created_at'), 'created_by');
         } else {
             // If the employee is not an admin, fetch only the employee's temperature data
+            // $temperatureData = TemperatureCategory::where('created_by', $request->employeecode)
+            //     ->select('id', 'equipment_name', 'temperature_value', 'created_at', 'created_by');
             $temperatureData = TemperatureCategory::where('created_by', $request->employeecode)
-                ->select('id', 'equipment_name', 'temperature_value', 'created_at', 'created_by');
+                ->select('id', 'equipment_name', 'temperature_value', DB::raw('DATE_ADD(created_at, INTERVAL 2 HOUR) as created_at'), 'created_by');
         }
     
         // Apply date filters if provided
@@ -242,6 +246,28 @@ class TemperatureCatergoryController extends Controller
             return response()->json(['status' => true, 'message' => 'No Equipment Found', 'data' => "N/A" ]);
         }
 
+    }
+
+    public function deleteEquipment($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $trasabilityProd = Equipments::find($id);
+
+            if (!$trasabilityProd) {
+                return response()->json(['status' => false, 'message' => 'Equipment data not found']);
+            }
+
+            $trasabilityProd->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'Equipment data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
 
