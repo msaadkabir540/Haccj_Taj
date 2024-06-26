@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 // use DB;
 use App\Http\Controllers\RuntimeException;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class EmployeeProfileController extends Controller
 {
@@ -37,22 +38,31 @@ class EmployeeProfileController extends Controller
     }
 
     public function createEmployee(Request $request){
+        
+        // $data = json_decode($request->getContent());
+        
+        $employee = Employees::where('employeecode', $request->employeecode)->get();
+        if (count($employee) > 0) {
+            return response()->json(['status' => true, 'message' => 'employee already added', 'data' => null]);
+        }
 
         try
         {
             DB::beginTransaction();
+            $addEmployee = new Employees();
+            $addEmployee->employeecode  = $request->employeecode;
+            $addEmployee->name  = $request->name;
+            $addEmployee->email  = $request->email;
+            $addEmployee->dob  = $request->dob;
+            $addEmployee->contact_no = $request->contact_no;
+            $addEmployee->address = $request->address;
+            $addEmployee->department = $request->department;
+            $addEmployee->isadmin = $request->isadmin;
+            $addEmployee->created_at = Carbon::now()->toDateTimeString();
+            // $addEmployee->updated_at = Carbon::now()->toDateTimeString();
+            $addEmployee->save();
             
-                $addEmployee = new Employees();
-                $addEmployee->employeecode  = $request->employeecode;
-                $addEmployee->name  = $request->name;
-                $addEmployee->email  = $request->email;
-                $addEmployee->dob  = $request->dob;
-                $addEmployee->contact_no = $request->contact_no;
-                $addEmployee->address = $request->address;
-                $addEmployee->department = $request->department;
-                $addEmployee->isadmin = $request->isadmin;
-                $addEmployee->save();
-                
+
             if(!$addEmployee) {
                 DB::rollback();
             }
@@ -75,4 +85,102 @@ class EmployeeProfileController extends Controller
 
 
     }
+
+    public function updateEmployeeData(Request $request){
+        $id = $request->id;
+        try {
+            DB::beginTransaction();
+
+            $employeeData = Employees::find($id);
+
+            if (!$employeeData) {
+                return response()->json(['status' => false, 'message' => 'Employee data not found']);
+            }
+
+            $employeeData->updated_by  = $request->employeecode;
+            $employeeData->name  = $request->name;
+            $employeeData->email  = $request->email;
+            $employeeData->dob  = $request->dob;
+            $employeeData->contact_no = $request->contact_no;
+            $employeeData->address = $request->address;
+            $employeeData->department = $request->department;
+            $employeeData->isadmin = $request->isadmin;
+            $employeeData->updated_at = Carbon::now()->toDateTimeString();
+            $employeeData->save();
+    
+            DB::commit();
+    
+            return response()->json(['status' => true, 'message' => 'Employee Updated']);
+        } catch(\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
+    public function deleteEmployee($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $employeeData = Employees::find($id);
+
+            if (!$employeeData) {
+                return response()->json(['status' => false, 'message' => 'employeeData data not found']);
+            }
+
+            $employeeData->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'employeeData data deleted']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+
+    public function getAllEmployeeData(Request $request){
+
+        $employeeData = Employees::select('id', 'employeecode', 'name', 'email','dob','contact_no', 
+        'address','department','isadmin','quit', 'created_at');
+
+        // Apply employeecode filter if provided
+        if($request->employee){
+            $employeeData->where('employeecode', trim($request->employee));
+        }
+    
+
+        $employeeData = $employeeData->orderBy('created_at', 'DESC')->get();
+    
+
+
+        // $employeeData = Employees::get();
+        if (count($employeeData)) {
+            return response()->json(['status' => true, 'message' => 'All Employee Data', 'data' => $employeeData ]);
+        }
+        else {
+            return response()->json(['status' => true, 'message' => 'No Employee Found', 'data' => "N/A" ]);
+        }
+
+    }
+
+
+    public function getAllEmployeeDataGet(Request $request){
+    
+
+        $employeeData = Employees::get();
+    
+
+
+        // $employeeData = Employees::get();
+        if (count($employeeData)) {
+            return response()->json(['status' => true, 'message' => 'All Employee Data', 'data' => $employeeData ]);
+        }
+        else {
+            return response()->json(['status' => true, 'message' => 'No Employee Found', 'data' => "N/A" ]);
+        }
+
+    }
+
 }

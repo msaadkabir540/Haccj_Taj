@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\NewAccessToken;
+use Illuminate\Support\Str;
 
 class User extends Model implements Authenticatable
 {
@@ -16,6 +18,19 @@ class User extends Model implements Authenticatable
     protected $primaryKey = 'id';
     protected $guarded = [];
     protected $fillable = [ 'employeecode', 'password'];
+
+
+    public function createToken(string $name, array $abilities = ['*'])
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(100)),
+            'abilities' => $abilities,
+        ]);
+
+        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+    }
+
 
 
     /**

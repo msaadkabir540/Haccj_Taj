@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Models\Employees;
 // use Auth;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
+
 
 use Laravel\Sanctum\HasApiTokens;
 use DB;
@@ -27,7 +30,7 @@ class AuthController extends Controller
         $password = $request->get('password');
         
         $isEmployeeExist = Employees::where('employeecode', $employeecode)->where('quit', 0)->distinct()->count();
-        
+
         
         if($isEmployeeExist == 0){
             return response()->json([
@@ -90,73 +93,61 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         $employeeData = Employees::where('employeecode', $user->employeecode)->first();
 
+        // $expiryDateTime = now()->addDays(3); // Calculate expiration date and time
+        $currentTime = Carbon::now();
+
+        // Add 15 minutes to the current time
+        // $fifteenMinutesLater = $currentTime->addMinutes(20);
+        $fifteenMinutesLater = $currentTime->addDays(3);
+        
+        // Choose your desired format for output
+        $formattedTime = $fifteenMinutesLater->format('Y-m-d H:i:s'); // Example format (change as needed)
+        
+        // Use the formatted time for your application logic (e.g., echoing it)
+        // echo $formattedTime;
+        
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => 'login_successfully',
+        //     'access_token' => $token,
+        //     // 'expires_in' => Config::get('sanctum.expiration') * 60,
+        //     'expires_in' => Config::get('sanctum.expiration') * 600,
+        //     'token_type' => 'bearer',
+        //     'employee' => $employeeData,
+        // ]);
+
+        // $expiryDateTime = now()->addDays(1); // Calculate expiration date and time
+        // $expiryTimestamp = $expiryDateTime->timestamp;
+        
         return response()->json([
             'status' => true,
             'message' => 'login_successfully',
             'access_token' => $token,
+            'expires_at' => $formattedTime, // Format the expiry date and time
             'token_type' => 'bearer',
             'employee' => $employeeData,
-        ]);
+        ])->cookie('expiration', $formattedTime);
+        
     }
     
 
-    // public function login(Request $request)
+
+    // public function logout()
     // {
-    //     // dd($request);
-    //     $credentials = $request->validate([
-    //         'employeecode' => 'required|employeecode',
-    //         'password' => 'required|string',
-    //     ]);
-    //     if (Auth::attempt($credentials)) {
-    //         $user = Auth::user();
-    //         $token = $user->createToken('auth_token')->plainTextToken;
-    //         $employeeData = Employees::where('employeecode', $user->employeecode)->first();
-
-    //         return $this->respondWithToken($token,$employeeData);
-
-    //         // return response()->json([
-    //         //     'status' => true,
-    //         //     'data' => $employeeData,
-    //         //     'token' => $token,
-    //         //     'message' => 'Login Successfully'
-    //         // ]);
-    //     }
-
-    //     return response()->json([
-    //         'status' => false,
-    //         'token' => null,
-    //         'message' => 'Unauthorized'
-    //     ], 401);
-        
-    //     // return response()->json(['message' => 'Unauthorized'], 401);
-    // }
-
-    // public function logout(Request $request)
-    // {
-    //     // dd($request);
-    //     $request->user()->currentAccessToken()->delete();
-
+    //     auth()->guard('web')->logout();
 
     //     return response()->json(['message' => 'Successfully logged out']);
     // }
 
 
-    // protected function respondWithToken($token,$employeeData){
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'access_token' => $token,
-    //         'token_type' => 'bearer',
-    //         // 'expires_in' => $this->guard('api')->factory()->getTTL() * 36000,
-    //         'employee' => $employeeData
-    //     ]);
-    // }
 
 
-    // public function logout(Request $request)
-    // {
-    //     $request->user()->tokens()->delete();
 
-    //     return response()->json(['message' => 'Logged out']);
-    // }
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json(['status' => true ,'message' => 'Logout Successfully']);
+        
+    }
 }

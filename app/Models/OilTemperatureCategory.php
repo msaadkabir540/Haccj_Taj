@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Employees extends Model
+class OilTemperatureCategory extends Model
 {
-    protected $table = 'employees';
+    protected $table = 'oil_temperature_cat';
 
     protected $primaryKey = 'id';
 
