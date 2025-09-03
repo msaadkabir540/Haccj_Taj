@@ -75,6 +75,8 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+
+      
         $request->validate([
             'employeecode' => 'required|employeecode',
             'password' => 'required|string',
@@ -130,6 +132,24 @@ class AuthController extends Controller
         
     }
     
+    public function getAllUsers()
+{
+    try {
+        $users = User::all(); // fetch all records from users table
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Users retrieved successfully',
+            'data' => $users
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to retrieve users',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 
     // public function logout()

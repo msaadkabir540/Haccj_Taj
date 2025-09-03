@@ -43,49 +43,7 @@ class TemperatureCatergoryController extends Controller
     
     }
 
-    // public function getAllTemperatureData(Request $request){
-
-    //     $employee = Employees::where('employeecode', $request->employeecode)->first();
-
-    //     // Check if the employee record exists and if the employee is an admin
-        
-    //     if ($employee && $employee->isAdmin == 1) {
-    //     }        
-    //     // $temperatureData = TemperatureCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
-    //     $temperatureData = TemperatureCategory::select('id', 'equipment_name', 'temperature_value', 'created_at', 'created_by');
-    //     // dd($request->date);
-    //     if($request->date){
-    //         $date = date('Y-m-d', strtotime($request->date));
-    //         if($request->edate) {
-    //             $edate = date('Y-m-d', strtotime($request->edate));
-    //             $temperatureData = $temperatureData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
-    //         }
-    //         else {
-    //             $temperatureData = $temperatureData->whereRaw("DATE(created_at) = '$date'");
-    //         }
-    //     }
-    //     else {
-    //         if(!$request->date && !$request->employeecode ) {
-    //             $temperatureData = $temperatureData->whereRaw("DATE(created_at) = curdate()");
-    //         }
-    //     }
-
-    //     if($request->employeecode){
-    //         $temperatureData = $temperatureData->where('created_by' , trim($request->employeecode));
-    //     }
-    //     $temperatureData = $temperatureData->orderBy('created_at', 'DESC')->get();
-
-    //     $equipmentsData = Equipments::get();
-
-    //     return response()->json(['status' => true, 'message' => 'Today Temperature Data', 'temperatureData' => $temperatureData, "equipmentsData" => $equipmentsData ]);
-    //     // if (count($temperatureData)) {
-    //     // }
-    //     // else {
-    //     //     return response()->json(['status' => true, 'message' => 'No Data Found', 'data' => "N/A" ]);
-    //     // }
-    // }
-
-
+  
 
     public function getAllTemperatureData(Request $request){
 
@@ -162,6 +120,7 @@ class TemperatureCatergoryController extends Controller
             }
             
             $updateTemperature->updated_by = $request->employeecode;
+            $updateTemperature->category  = $request->category;
             $updateTemperature->equipment_name = $request->equipment_name;
             $updateTemperature->temperature_value = $request->temperature_value;
             $updateTemperature->updated_at = Carbon::now()->toDateTimeString();
@@ -206,6 +165,7 @@ class TemperatureCatergoryController extends Controller
             DB::beginTransaction();
             $addEquipment = new Equipments();
             $addEquipment->equipment_name  = $request->equipment_name;
+            $addEquipment->category  = $request->category;
             $addEquipment->created_by  = $request->employeecode;
             $addEquipment->created_at = Carbon::now()->toDateTimeString();
             // $addEquipment->updated_at = Carbon::now()->toDateTimeString();;
@@ -226,13 +186,6 @@ class TemperatureCatergoryController extends Controller
             return response()->json(['status' => false, 'message' => $e]);
         }
     
-
-
-
-
-
-
-
     }
 
 

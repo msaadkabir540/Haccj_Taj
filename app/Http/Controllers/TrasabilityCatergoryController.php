@@ -50,70 +50,106 @@ class TrasabilityCatergoryController extends Controller
 
 
 
-    public function getAllTrasabilityData(Request $request) {
-        // dd($request);
-        // Retrieve the employee record based on the provided employeecode
-        $employee = Employees::where('employeecode', $request->employeecode)->first();
+    // public function getAllTrasabilityData(Request $request) {
+    //     // dd($request);
+    //     // Retrieve the employee record based on the provided employeecode
+    //     $employee = Employees::where('employeecode', $request->employeecode)->first();
     
-        // Initialize the trasabilityData query
-        $trasabilityData = TrasabilityCategory::query();
+    //     // Initialize the trasabilityData query
+    //     $trasabilityData = TrasabilityCategory::query();
     
-        // Check if the employee record exists and if the employee is an admin
-        if ($employee && $employee->isadmin == 1) {
-            // If the employee is an admin, fetch all trasability data
-            $trasabilityData->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
-        } else {
-            // If the employee is not an admin, fetch only the employee's trasability data
-            $trasabilityData->where('created_by', $request->employeecode)
-                            ->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
-        }
+    //     // Check if the employee record exists and if the employee is an admin
+    //     if ($employee && $employee->isadmin == 1) {
+    //         // If the employee is an admin, fetch all trasability data
+    //         $trasabilityData->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
+    //     } else {
+    //         // If the employee is not an admin, fetch only the employee's trasability data
+    //         $trasabilityData->where('created_by', $request->employeecode)
+    //                         ->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
+    //     }
     
-        // Apply date filters if provided
-        if ($request->date) {
-            $date = date('Y-m-d', strtotime($request->date));
-            if ($request->edate) {
-                $edate = date('Y-m-d', strtotime($request->edate));
-                $trasabilityData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
-            } else {
-                $trasabilityData->whereRaw("DATE(created_at) = '$date'");
-            }
-        } else {
-            if (!$request->date && !$request->employee) {
-                $trasabilityData->whereDate('created_at', today());
-            }
-        }
+    //     // Apply date filters if provided
+    //     if ($request->date) {
+    //         $date = date('Y-m-d', strtotime($request->date));
+    //         if ($request->edate) {
+    //             $edate = date('Y-m-d', strtotime($request->edate));
+    //             $trasabilityData->whereRaw("DATE(created_at) BETWEEN '$date' AND '$edate'");
+    //         } else {
+    //             $trasabilityData->whereRaw("DATE(created_at) = '$date'");
+    //         }
+    //     } else {
+    //         if (!$request->date && !$request->employee) {
+    //             $trasabilityData->whereDate('created_at', today());
+    //         }
+    //     }
     
-        // Apply employeecode filter if provided
-        if ($request->employee) {
-            $trasabilityData->where('created_by', $request->employee);
-        }
+    //     // Apply employeecode filter if provided
+    //     if ($request->employee) {
+    //         $trasabilityData->where('created_by', $request->employee);
+    //     }
     
-        // Continue building your query as needed
-    
-        // Finally, retrieve the data and return the response
-        $trasabilityData = $trasabilityData->orderBy('created_at', 'DESC')->get();
+    //     $trasabilityData = $trasabilityData->orderBy('created_at', 'DESC')->get();
     
 
-        $fourDaysAgo = Carbon::today()->subDays(4);
+    //     $fourDaysAgo = Carbon::today()->subDays(4);
 
-        // $trasabilityData = TrasabilityCategory::whereDate('created_at', Carbon::today())->where('created_by', $employeecode)->get();
-        // $trasabilityData = TrasabilityCategory::where('created_at', '>=', $fourDaysAgo)
-        // ->where('created_by', $employeecode)
-        // ->get();
 
-        $trasabilityProdData = TrasabilityProdType::get();
-        $trasabilityProdNameData = TrasabilityProdName::get();
+    //     $trasabilityProdData = TrasabilityProdType::get();
+    //     $trasabilityProdNameData = TrasabilityProdName::get();
 
-        // if (count($trasabilityData)) {
-            return response()->json(['status' => true, 'message' => 'All Trasability Data', 'trasabilityData' => $trasabilityData, 'trasabilityProdData' => $trasabilityProdData , 'trasabilityProdNameData' => $trasabilityProdNameData ]);
-        // }
-        // else {
-        //     return response()->json(['status' => true, 'message' => 'No Trasability Found', 'data' => "N/A" ]);
-        // }
+    //         return response()->json(['status' => true, 'message' => 'All Trasability Data', 'trasabilityData' => $trasabilityData, 'trasabilityProdData' => $trasabilityProdData , 'trasabilityProdNameData' => $trasabilityProdNameData ]);
+      
         
 
-    }
+    // }
     
+
+    public function getAllTrasabilityData(Request $request) {
+    // Get employee record by employeecode
+    $employee = Employees::where('employeecode', $request->employeecode)->first();
+
+    // Start TrasabilityCategory query
+    $trasabilityData = TrasabilityCategory::query()
+        ->select('id', 'trasability_name', 'trasability_type', 'image', 'image_name', 'expire_at', 'created_at', 'created_by');
+// dd($employee);
+    // ✅ Apply admin / non-admin condition
+    if (!$employee || $employee->isadmin != 1) {
+        // Non-admin → show only their own created data
+        $trasabilityData->where('created_by', $request->employeecode);
+    }
+
+    // ✅ Apply date filters
+    if ($request->date) {
+        $date = date('Y-m-d', strtotime($request->date));
+        if ($request->edate) {
+            $edate = date('Y-m-d', strtotime($request->edate));
+            $trasabilityData->whereRaw("DATE(created_at) BETWEEN ? AND ?", [$date, $edate]);
+        } else {
+            $trasabilityData->whereRaw("DATE(created_at) = ?", [$date]);
+        }
+    } 
+
+    // ✅ Apply employeecode filter if provided
+    if ($request->employee) {
+        $trasabilityData->where('created_by', $request->employee);
+    }
+
+    // Fetch results
+    $trasabilityData = $trasabilityData->orderBy('created_at', 'DESC')->get();
+
+    // Other related data (always shown)
+    $trasabilityProdData = TrasabilityProdType::get();
+    $trasabilityProdNameData = TrasabilityProdName::get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'All Trasability Data',
+        'trasabilityData' => $trasabilityData,
+        'trasabilityProdData' => $trasabilityProdData,
+        'trasabilityProdNameData' => $trasabilityProdNameData
+    ]);
+}
+
 
     public function getTrasabilityById(Request $request, $id){
         $reports = TrasabilityCategory::where('id', $id)->orderBy('created_at', 'desc')->first(); 

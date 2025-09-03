@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use DateTimeZone;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,7 +13,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('equipment:add-temperature')->dailyAt('09:00');
+        $schedule->command('trasability:update-expire')->dailyAt('09:00');
+    }
+
+    /**
+     * Force all scheduled tasks to use the France timezone.
+     */
+    protected function scheduleTimezone(): DateTimeZone|string|null
+    {
+        return 'Europe/Paris'; // France timezone
     }
 
     /**

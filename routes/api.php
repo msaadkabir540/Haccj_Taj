@@ -11,6 +11,7 @@ use App\Http\Controllers\ChecklistCatergoryController;
 use App\Http\Controllers\OilTemperatureCatergoryController;
 use App\Http\Controllers\CleaningCatergoryController;
 use App\Http\Controllers\ProductsCatergoryController;
+use App\Http\Controllers\AttandanceController;
 use App\Models\CleaningCategory;
 use App\Models\Equipments;
 
@@ -175,3 +176,7 @@ Route::post('/add-oil-temperature-machines', [OilTemperatureCatergoryController:
 // // Cleaning
 Route::post('/add-cleaning', [CleaningCatergoryController::class, 'addCleaningData']);
 Route::post('/get-cleaning-data', [CleaningCatergoryController::class, 'getAllCleaningData']);
+
+// Attendance
+Route::post('/attendance', [AttandanceController::class, 'store']);
+Route::get('/get-attendance', [AttandanceController::class, 'getAllAttendance']);
