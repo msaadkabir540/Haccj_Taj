@@ -6,20 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+ public function up()
     {
-        Schema::create('attandance', function (Blueprint $table) {
+        Schema::create('attendance', function (Blueprint $table) {
             $table->id();
-            $table->string('location');
-            $table->timestamp('time');
             $table->string('employeecode');
-            $table->foreign('employeecode')->references('employeecode')->on('employees')->onDelete('cascade');
+            
+            // Check-in details
+            $table->decimal('check_in_latitude', 10, 7)->nullable();
+            $table->decimal('check_in_longitude', 10, 7)->nullable();
+            $table->timestamp('check_in')->nullable();
+
+            // Check-out details
+            $table->decimal('check_out_latitude', 10, 7)->nullable();
+            $table->decimal('check_out_longitude', 10, 7)->nullable();
+            $table->timestamp('check_out')->nullable();
+
             $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('attandance');
+        Schema::dropIfExists('attendance');
     }
 };

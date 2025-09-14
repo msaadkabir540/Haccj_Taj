@@ -6,8 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Attandance extends Model
 {
-    protected $table = 'attandance';
-    protected $fillable = ['location', 'time', 'employeecode']; // ✅ fix here
+    protected $table = 'attendance';
+    
+  protected $fillable = [
+        'employeecode',
+        'check_in_latitude',
+        'check_in_longitude',
+        'check_in',
+        'check_out_latitude',
+        'check_out_longitude',
+        'check_out',
+    ];
 
     public function employee()
     {

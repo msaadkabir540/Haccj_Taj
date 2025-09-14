@@ -12,6 +12,8 @@ use App\Http\Controllers\OilTemperatureCatergoryController;
 use App\Http\Controllers\CleaningCatergoryController;
 use App\Http\Controllers\ProductsCatergoryController;
 use App\Http\Controllers\AttandanceController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ScheduledNotificationController;
 use App\Models\CleaningCategory;
 use App\Models\Equipments;
 
@@ -31,73 +33,6 @@ Route::middleware('auth:sanctum')->get('/api', function (Request $request) {
     // Route::post('/logout', [AuthController::class, 'logout']);
 
 });
-
-
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     // Route::post('/get-temperature-data', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
-
-//     // Validate Employee Code    
-//     Route::get('validate-employee/{employeecode}', [EmployeeProfileController::class, 'validateEmployee']);
-//     Route::post('get-all-employee', [EmployeeProfileController::class, 'getAllEmployeeData']);
-//     // Create Employee
-//     Route::post('/add-employee', [EmployeeProfileController::class, 'createEmployee']);
-
-
-//         // Equipments
-//     Route::post('/add-equipment', [TemperatureCatergoryController::class, 'addEquipmentData']);
-//     Route::get('/get-equipment-data', [TemperatureCatergoryController::class, 'getAllEquipmentData']);
-
-//     // Temperature APIs
-//     Route::post('/add-temperature', [TemperatureCatergoryController::class, 'addTemperatureData']);
-//     Route::post('/get-temperature-data', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
-//     // Route::post('/get-temperature-data', [TemperatureCatergoryController::class, 'getAllTemperatureData']);
-//     Route::get('/get-temperature-byid/{id}', [TemperatureCatergoryController::class, 'getTempById']);
-
-
-//     Route::post('/update-employee', [EmployeeProfileController::class, 'updateEmployeeData']);
-//     Route::delete('/delete-employee/{id}', [EmployeeProfileController::class, 'deleteEmployee']);
-//     Route::post('/update-temperature', [TemperatureCatergoryController::class, 'updateTemperatureData']);
-//     Route::delete('/delete-temperature/{id}', [TemperatureCatergoryController::class, 'deleteTemperature']);
-//     Route::post('/update-cleaning', [CleaningCatergoryController::class, 'updateCleaningData']);
-//     Route::delete('/delete-cleaning/{id}', [CleaningCatergoryController::class, 'deleteCleaning']);
-//     Route::post('/update-oil-temperature', [OilTemperatureCatergoryController::class, 'updateOilTemperatureData']);
-//     Route::delete('/delete-oil-temperature/{id}', [OilTemperatureCatergoryController::class, 'deleteOilTemperature']);
-//     Route::post('/update-checklist', [ChecklistCatergoryController::class, 'updateChecklistData']);
-//     Route::delete('/delete-checklist/{id}', [ChecklistCatergoryController::class, 'deleteChecklist']);
-//     Route::post('/update-trasability', [TrasabilityCatergoryController::class, 'updateTrasabilityData']);
-//     Route::delete('/delete-trasability/{id}', [TrasabilityCatergoryController::class, 'deleteTrasability']);
-//     Route::delete('/delete-trasability-product/{id}', [TrasabilityCatergoryController::class, 'deleteTrasabilityProd']);
-//     Route::delete('/delete-temperature-equipment/{id}', [TemperatureCatergoryController::class, 'deleteEquipment']);
-//     Route::delete('/delete-oil-temperature-machine/{id}', [OilTemperatureCatergoryController::class, 'deleteOilTemperatureMachine']);
-//     Route::get('get-all-employee-get', [EmployeeProfileController::class, 'getAllEmployeeDataGet']);
-
-//     // Trasabilty
-//     Route::post('/add-trasability', [TrasabilityCatergoryController::class, 'addTrasabilityData']);
-//     Route::post('/get-trasability-data', [TrasabilityCatergoryController::class, 'getAllTrasabilityData']);
-//     Route::post('/add-trasability-productType', [TrasabilityCatergoryController::class, 'addTrasabilityProdType']);
-//     Route::get('/get-trasability-productType', [TrasabilityCatergoryController::class, 'getAllTrasabilityProd']);
-//     Route::get('/get-trasability-byid/{id}', [TrasabilityCatergoryController::class, 'getTrasabilityById']);
-
-
-//     // Checklist
-//     Route::post('/add-checklist', [ChecklistCatergoryController::class, 'addChecklistData']);
-//     Route::post('get-checklist-data', [ChecklistCatergoryController::class, 'getAllChecklistData']);
-
-//     // Oil Temperature
-//     Route::post('/add-oil-temperature', [OilTemperatureCatergoryController::class, 'addOilTemperatureData']);
-//     Route::post('/get-oil-temperature-data', [OilTemperatureCatergoryController::class, 'getAllOilTemperatureData']);
-//     Route::post('/add-oil-temperature-machines', [OilTemperatureCatergoryController::class, 'addOilTempMachines']);
-
-//     // Cleaning
-//     Route::post('/add-cleaning', [CleaningCatergoryController::class, 'addCleaningData']);
-//     Route::post('/get-cleaning-data', [CleaningCatergoryController::class, 'getAllCleaningData']);
-
-
-// });
-
-
-
 
 // Auth
 Route::post('/register', [AuthController::class, 'register']);
@@ -178,5 +113,36 @@ Route::post('/add-cleaning', [CleaningCatergoryController::class, 'addCleaningDa
 Route::post('/get-cleaning-data', [CleaningCatergoryController::class, 'getAllCleaningData']);
 
 // Attendance
-Route::post('/attendance', [AttandanceController::class, 'store']);
+Route::post('/attendance', [AttandanceController::class, 'checkAttendance']);
 Route::get('/get-attendance', [AttandanceController::class, 'getAllAttendance']);
+Route::post('/attendance/checkin', [AttandanceController::class, 'checkIn']);
+Route::post('/attendance/checkout', [AttandanceController::class, 'checkOut']);
+Route::post('/attendance/isEmployeeCheckedIn', [AttandanceController::class, 'isEmployeeCheckedIn']);
+
+
+
+Route::post('/testNotification', [NotificationController::class, 'testNotification']);
+Route::post('/broadcastTest', [NotificationController::class, 'broadcastTest']);
+//
+
+// List all schedules (with filters & pagination)
+Route::get('/scheduled-notifications', [ScheduledNotificationController::class, 'getNotification']);
+
+// Create a new schedule
+Route::post('/scheduled-notifications', [ScheduledNotificationController::class, 'store']);
+
+// Show a specific schedule
+Route::get('/scheduled-notifications/{id}', [ScheduledNotificationController::class, 'show']);
+
+// Update a schedule
+Route::put('/scheduled-notifications/{id}', [ScheduledNotificationController::class, 'update']);
+Route::patch('/scheduled-notifications/{id}', [ScheduledNotificationController::class, 'update']);
+
+// Delete a schedule
+Route::delete('/scheduled-notifications/{id}', [ScheduledNotificationController::class, 'destroy']);
+
+// Pause a schedule
+Route::patch('/scheduled-notifications/{id}/pause', [ScheduledNotificationController::class, 'pause']);
+
+// Resume a schedule
+Route::patch('/scheduled-notifications/{id}/resume', [ScheduledNotificationController::class, 'resume']);
